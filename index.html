@@ -1,1102 +1,145 @@
 <!DOCTYPE html>
-<html lang="id" class="dark">
+<html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Security Risk Map Subholding Upstream - Pertamina Hulu Energi</title>
-    
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- Google Fonts: Inter & JetBrains Mono -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Leaflet CSS & JS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-
-    <!-- Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        mono: ['JetBrains Mono', 'monospace'],
-                    },
-                    colors: {
-                        pertamina: {
-                            blue: '#005596',
-                            red: '#ED1C24',
-                            green: '#8CC63F',
-                            dark: '#090D16',
-                            panel: '#111827',
-                            border: '#1F2937'
-                        }
-                    }
-                }
-            }
-        }
-    </script>
-
-    <style>
-        body {
-            background-color: #090D16;
-            color: #F3F4F6;
-            overflow-x: hidden;
-        }
-
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #0F172A;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #334155;
-            border-radius: 9999px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #475569;
-        }
-
-        /* Map Container */
-        #map {
-            width: 100%;
-            height: 100%;
-            z-index: 10;
-            background: #0B1120;
-        }
-
-        /* Pulsing Marker Animation */
-        .pulse-marker {
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .pulse-ring {
-            position: absolute;
-            border-radius: 9999px;
-            animation: pulseRing 2.4s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
-        }
-        .pulse-core {
-            position: relative;
-            border-radius: 9999px;
-            border: 2px solid #ffffff;
-            box-shadow: 0 0 12px rgba(0, 0, 0, 0.7);
-            transition: transform 0.2s ease;
-        }
-        .pulse-marker:hover .pulse-core {
-            transform: scale(1.25);
-        }
-
-        @keyframes pulseRing {
-            0% {
-                transform: scale(0.6);
-                opacity: 0.85;
-            }
-            80%, 100% {
-                transform: scale(2.4);
-                opacity: 0;
-            }
-        }
-
-        /* Custom Leaflet Popup Styling */
-        .leaflet-popup-content-wrapper {
-            background: rgba(15, 23, 42, 0.95);
-            backdrop-filter: blur(12px);
-            color: #F8FAFC;
-            border: 1px solid rgba(51, 65, 85, 0.8);
-            border-radius: 12px;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.6);
-            padding: 0;
-        }
-        .leaflet-popup-content {
-            margin: 0;
-            width: 280px !important;
-        }
-        .leaflet-popup-tip {
-            background: rgba(15, 23, 42, 0.95);
-            border: 1px solid rgba(51, 65, 85, 0.8);
-        }
-        .leaflet-container a.leaflet-popup-close-button {
-            color: #94A3B8;
-            top: 8px;
-            right: 8px;
-            font-size: 18px;
-        }
-        .leaflet-container a.leaflet-popup-close-button:hover {
-            color: #FFFFFF;
-        }
-
-        /* Zone Label Tooltip on Map */
-        .zone-map-label {
-            background: rgba(15, 23, 42, 0.85);
-            border: 1px solid rgba(148, 163, 184, 0.35);
-            color: #F8FAFC;
-            font-family: 'Inter', sans-serif;
-            font-weight: 600;
-            font-size: 11px;
-            padding: 2px 8px;
-            border-radius: 6px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.4);
-            white-space: nowrap;
-        }
-        .zone-map-label::before {
-            display: none;
-        }
-
-        /* Print Styles */
-        @media print {
-            body {
-                background: #ffffff !important;
-                color: #000000 !important;
-            }
-            .no-print {
-                display: none !important;
-            }
-            #map {
-                height: 450px !important;
-                border: 1px solid #ccc;
-            }
-        }
-    </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>Security Risk Map SHU | TRIS W3 November 2026</title>
+  <link rel="preconnect" href="https://unpkg.com">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <style>
+    :root {--bg:#070d19;--panel:#101a2c;--panel2:#142039;--line:#26354d;--text:#f2f6fd;--muted:#94a9c4;--blue:#40a2ed;--cyan:#55d5df;--green:#72d28c;--amber:#ffc16a;--red:#ff7181;--shadow:0 20px 65px rgba(0,0,0,.22)}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:radial-gradient(ellipse 70% 55% at 16% 0%,#132b4d 0%,transparent 72%),var(--bg);font:14px/1.45 Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,sans-serif;color:var(--text)}
+    button,input,textarea,select{font:inherit}button{cursor:pointer}button:disabled{opacity:.45;cursor:not-allowed}a{color:#82c7ff;text-decoration:none}a:hover{text-decoration:underline}
+    .accent{height:5px;background:linear-gradient(90deg,#005596 0 33%,#8cc63f 33% 66%,#ed1c24 66%)}
+    header{position:sticky;top:0;z-index:1100;background:#0a1324eb;backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+    .head{max-width:1650px;margin:auto;padding:13px 21px;display:flex;align-items:center;justify-content:space-between;gap:15px;flex-wrap:wrap}
+    .brand{display:flex;align-items:center;gap:13px}.logo{width:44px;height:44px;display:grid;place-items:center;border:1px solid #3776a7;background:linear-gradient(140deg,#005596,#101d37);border-radius:13px}
+    h1,h2,h3,p{margin:0}h1{font-size:clamp(17px,2.15vw,24px);letter-spacing:-.65px;line-height:1.2}.eyebrow{font-size:10px;font-weight:800;letter-spacing:1.9px;text-transform:uppercase;color:#82bcf4;margin-bottom:3px}
+    .head-actions{display:flex;align-items:center;gap:9px;flex-wrap:wrap}.chip{padding:7px 11px;border-radius:9px;border:1px solid #33465b;color:#c2d3e8;background:#13223a;font-size:11px;font-weight:700}.chip strong{color:white}.btn{color:#e8f4ff;border:1px solid #375372;background:#1b3150;padding:9px 13px;border-radius:10px;font-size:12px;font-weight:750;transition:background .15s}.btn:hover{background:#244367}.btn.primary{background:#086ba9;border-color:#3996d0}.btn.primary:hover{background:#077dbf}.btn.danger{background:#4f2633;border-color:#884555}.btn.small{padding:7px 10px;font-size:11px}.btn:focus-visible,.item:focus-visible{outline:2px solid #6ac9ff;outline-offset:2px}
+    main{max-width:1650px;margin:0 auto;padding:21px;display:grid;gap:17px}.subhead{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap}.subhead h2{font-size:20px;font-weight:840;letter-spacing:-.45px}.subhead .subtitle{color:var(--muted);font-size:12px;margin-top:5px}.micro{font-size:11px;color:var(--muted)}.meta{display:flex;flex-wrap:wrap;gap:8px}
+    .panel{background:linear-gradient(160deg,#132037 0%,#0f1a2c 90%);border:1px solid var(--line);border-radius:17px;box-shadow:var(--shadow)}.panel-header{padding:15px 17px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:11px;flex-wrap:wrap}.panel-header h3{font-size:13px;letter-spacing:.2px}.panel-body{padding:17px}
+    .summary{display:grid;grid-template-columns:1.5fr repeat(5,1fr);gap:11px}.summary-note{padding:17px 19px;border:1px solid #49614d;border-radius:17px;background:linear-gradient(120deg,#193b3d,#142039 72%)}.summary-note .state-title{font-size:12px;color:#ace8d4;letter-spacing:.9px;font-weight:850;margin-bottom:8px;text-transform:uppercase}.summary-note p{font-size:13px;line-height:1.6;color:#e1f1ed;max-width:530px}.kpi{padding:14px 15px;border:1px solid var(--line);border-radius:17px;background:linear-gradient(155deg,#172641,#101a2d);min-height:127px}.kpi-label{font-size:10px;text-transform:uppercase;letter-spacing:1px;color:#a6bad3;font-weight:850}.kpi .num{margin:8px 0 3px;font-weight:850;line-height:1;font-size:clamp(26px,3vw,35px);font-variant-numeric:tabular-nums}.kpi .hint{font-size:11px;color:#a4b9d3}.green{color:var(--green)}.red{color:var(--red)}.amber{color:var(--amber)}.cyan{color:var(--cyan)}
+    .workspace{display:grid;grid-template-columns:minmax(0,1.8fr) minmax(330px,.87fr);gap:17px;align-items:stretch}.map-panel{overflow:hidden}.toolbar{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;padding:11px 14px;border-bottom:1px solid var(--line)}.tabs{display:flex;gap:6px;flex-wrap:wrap}.tab{padding:7px 10px;font-size:11px;border:1px solid #354866;background:#172640;border-radius:8px;color:#b8c8db;font-weight:750}.tab[aria-pressed=true]{background:#056ba4;border-color:#45a4df;color:#fff}.select{background:#14233c;color:#eef5ff;border:1px solid #3d5270;border-radius:9px;padding:8px 10px;font-size:12px}.map-wrap{position:relative}.map{height:590px;width:100%;background:#0b1425}.map-legend{position:absolute;z-index:600;left:12px;bottom:12px;max-width:265px;background:#0d1a2dec;backdrop-filter:blur(6px);border:1px solid #3c5571;border-radius:11px;padding:11px 13px;box-shadow:0 9px 30px #0007;pointer-events:none}.legend-line{font-size:11px;margin:6px 0;color:#d6e4f6}.legend-dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:7px;vertical-align:middle}.note-bar{color:#bfd0e1;font-size:10px;line-height:1.5;padding:10px 14px;background:#0c1829;border-top:1px solid var(--line)}
+    .sidebar{display:grid;grid-template-rows:auto 1fr;gap:17px;min-width:0}.zone-name{font-weight:850;font-size:20px}.status{border-radius:7px;padding:5px 8px;font-size:10px;font-weight:850;display:inline-block;border:1px solid;letter-spacing:.1px}.status.alert{color:#ffc16a;background:#563b1a66;border-color:#91662e}.status.review{color:#a4bacf;background:#2f435866;border-color:#536981}.status.safe{color:#77d7aa;background:#18493480;border-color:#358c61}.status.critical{color:#ff899b;background:#581e3280;border-color:#b0445e}.field{margin-top:12px;padding-top:11px;border-top:1px solid #253754}.field label{display:block;font-size:10px;letter-spacing:.85px;color:#86a4c7;font-weight:800;text-transform:uppercase;margin-bottom:4px}.field p{font-size:12px;color:#dce9f7}.zones-list{display:grid;gap:7px;overflow:auto;max-height:285px;padding-right:3px}.item{background:#0e192b;border:1px solid #293c56;border-radius:11px;padding:10px 11px;display:flex;gap:10px;align-items:flex-start;justify-content:space-between;text-align:left;color:white}.item:hover{background:#192b47}.item.selected{border-color:#4da7db;background:#19334e}.item-name{font-size:12px;font-weight:800}.item-sub{font-size:10px;color:#9bb0c8;margin-top:3px}.item-count{min-width:27px;height:24px;border-radius:7px;background:#54351c;color:#ffc16a;font-weight:850;font-size:11px;display:grid;place-items:center}.zone-filter{width:100%;padding:10px 12px;background:#0b172a;color:white;border:1px solid #344a67;border-radius:9px;font-size:12px;margin-bottom:11px}
+    .lower{display:grid;grid-template-columns:1.05fr .95fr;gap:17px}.chartline{display:flex;align-items:end;gap:9px;height:160px;padding:5px 3px 0;border-bottom:1px solid #32435e}.bar-col{height:100%;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:7px;min-width:0}.bar-col .val{font-size:11px;font-weight:850;color:#d5e6f9}.bar{width:min(100%,48px);height:var(--bar-height);background:linear-gradient(180deg,#64b7ef,#135e95);border-radius:7px 7px 2px 2px;border:1px solid #73a8d4}.bar.current{background:linear-gradient(180deg,#70d9bf,#297968);border-color:#7fe8c7}.chartlabels{display:flex;gap:9px;margin-top:9px}.chartlabels span{flex:1;min-width:0;text-align:center;color:#91acc9;font-size:10px;line-height:1.15}.year-table,.incident-table{width:100%;border-collapse:collapse}.year-table th,.year-table td,.incident-table th,.incident-table td{text-align:left;vertical-align:top;border-bottom:1px solid #263850;padding:10px 8px;font-size:11px}.year-table th,.incident-table th{color:#8fb0d3;letter-spacing:.5px;font-size:10px;text-transform:uppercase}.year-table td strong{font-size:12px}.incident-table tr:last-child td,.year-table tr:last-child td{border-bottom:0}.incident-table tbody tr{cursor:pointer}.incident-table tbody tr:hover{background:#1b2d48}.tag{font-size:10px;border:1px solid #43617e;color:#b4d2ec;border-radius:6px;padding:3px 6px;display:inline-block}.wide{grid-column:1/-1}.analysis{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}.analysis .step{background:#0e1b2d;border:1px solid #273f5a;border-radius:11px;padding:13px}.analysis .step h4{margin:0 0 8px;font-size:12px;color:#f3faff}.analysis .step p{margin:0;color:#b9cee5;font-size:11px;line-height:1.55}
+    footer{border-top:1px solid #26354d;padding:18px 21px;background:#0a1321;margin-top:5px}.footer-in{max-width:1650px;margin:auto;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;color:#9fb4ca;font-size:11px}.footer-in b{color:#e7f1ff}
+    .leaflet-container{font-family:inherit}.leaflet-popup-content-wrapper,.leaflet-popup-tip{background:#13243a;color:#f5faff;border:1px solid #43617d}.leaflet-popup-content{margin:13px 15px;max-width:255px}.leaflet-container a.leaflet-popup-close-button{color:#c5e1f5}.leaflet-control-attribution{background:#0c1721bd!important;color:#aec3d7!important}.leaflet-control-zoom a{background:#14233c!important;color:white!important;border-color:#42597a!important}.map-pin{border-radius:50%;border:2px solid #ecf5ff;box-shadow:0 0 0 5px #0005,0 5px 20px #0008;display:flex;align-items:center;justify-content:center;color:#112234;font-size:11px;font-weight:900}.map-pin.orange{background:#ffc16a}.map-pin.grey{background:#869bb7}.map-pin.green{background:#72d28c}.map-pin.red{background:#ff7181}.event-pin{height:13px;width:13px;border-radius:50%;background:#f97368;border:2px solid white;box-shadow:0 0 0 5px #f9736850}
+    dialog{width:min(700px,95vw);max-height:86vh;overflow:auto;background:#101c30;border:1px solid #45607e;border-radius:17px;color:#f2f8ff;padding:0;box-shadow:0 30px 150px #000d}dialog::backdrop{background:#000b;backdrop-filter:blur(4px)}.dialog-body{padding:19px}.dialog-top{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:18px 19px;border-bottom:1px solid #2b415d}.dialog-bottom{padding:15px 19px;border-top:1px solid #2b415d;display:flex;gap:8px;justify-content:flex-end}.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:13px}.form-grid label,.update-row label{font-size:11px;color:#b6cce3;font-weight:750}.form-input{display:block;width:100%;margin-top:5px;background:#0c1729;border:1px solid #415a78;border-radius:8px;padding:9px 10px;color:white;font-size:12px}.update-row{background:#14223a;padding:10px 12px;margin-top:9px;border:1px solid #314765;border-radius:9px;display:grid;grid-template-columns:1fr 1.1fr;gap:9px;align-items:center}.update-row .micro{margin-top:3px}.validation{font-size:11px;color:#e9b16a;margin-top:11px;display:none}
+    @media(max-width:1300px){.summary{grid-template-columns:repeat(5,1fr)}.summary-note{grid-column:1/-1}.workspace{grid-template-columns:minmax(0,1.4fr) minmax(310px,.9fr)}}
+    @media(max-width:850px){main{padding:12px;gap:12px}.head{padding:12px}.workspace,.lower{grid-template-columns:1fr}.summary{grid-template-columns:repeat(2,1fr)}.summary-note{grid-column:1/-1}.sidebar{grid-template-rows:auto auto}.map{height:465px}.analysis{grid-template-columns:1fr}.kpi{min-height:116px}.kpi:last-child{grid-column:1/-1}.incident-table .hide-mobile{display:none}.form-grid{grid-template-columns:1fr}}
+    @media print{body{background:white;color:black;font-size:10px}header{position:static;background:white;color:black}.head h1{color:black}.no-print,dialog{display:none!important}.panel,.kpi,.summary-note{background:white;box-shadow:none;color:black;border:1px solid #aaa}.panel-header h3,.field p,.zone-name{color:black}.summary-note p,.kpi .hint,.kpi-label,.micro,.field label{color:#444}.workspace,.lower{display:block}.map-panel{page-break-inside:avoid}.map{height:350px}.sidebar{display:none}.lower .panel,.wide{margin-top:14px;page-break-inside:avoid}.chartline .bar{print-color-adjust:exact}.status,.tag{color:black!important}.incident-table td,.year-table td{color:black}.analysis .step{background:white;color:black}.analysis .step h4,.analysis .step p{color:black}.footer-in{color:black}}
+  </style>
 </head>
-<body class="min-h-screen flex flex-col font-sans antialiased selection:bg-blue-500 selection:text-white">
-
-    <!-- TOP EXECUTIVE COMMAND HEADER -->
-    <header class="bg-slate-900/95 border-b border-slate-800 sticky top-0 z-40 backdrop-blur-md">
-        <!-- Corporate Accent Bar -->
-        <div class="h-1.5 w-full flex">
-            <div class="w-1/3 bg-[#005596]"></div>
-            <div class="w-1/3 bg-[#8CC63F]"></div>
-            <div class="w-1/3 bg-[#ED1C24]"></div>
-        </div>
-
-        <div class="max-w-[1600px] mx-auto px-4 py-3 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
-            <!-- Left: Title & Corporate Branding -->
-            <div class="flex items-center justify-between gap-3">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-[#005596] to-slate-900 border border-blue-400/30 flex items-center justify-center shadow-lg shadow-blue-950/50 shrink-0">
-                        <i data-lucide="shield-check" class="w-6 h-6 text-[#8CC63F]"></i>
-                    </div>
-                    <div>
-                        <div class="flex flex-wrap items-center gap-2">
-                            <span class="text-[10px] font-bold tracking-wider uppercase px-2 py-0.5 rounded bg-blue-500/15 text-blue-300 border border-blue-500/30">
-                                Danantara Indonesia
-                            </span>
-                            <span class="text-[10px] font-bold tracking-wider uppercase px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-300 border border-emerald-500/30">
-                                PERTAMINA HULU ENERGI
-                            </span>
-                        </div>
-                        <h1 class="text-base sm:text-lg md:text-xl font-extrabold tracking-tight text-white mt-0.5">
-                            SECURITY RISK MAP <span class="text-slate-400 font-semibold hidden sm:inline">|</span> <span class="text-blue-400">SUBHOLDING UPSTREAM</span>
-                        </h1>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Right: Timestamp, Live Clock & Quick Actions -->
-            <div class="flex flex-wrap items-center gap-2 sm:gap-3">
-                <!-- Report Timestamp Badge -->
-                <div class="flex items-center gap-2.5 bg-slate-800/90 border border-slate-700/80 px-3 py-1.5 rounded-xl">
-                    <span class="relative flex h-2.5 w-2.5">
-                        <span id="headerPulseDot" class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                        <span id="headerSolidDot" class="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
-                    </span>
-                    <div class="leading-tight">
-                        <div class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold">Waktu Pembaruan Laporan</div>
-                        <div id="reportTimestampDisplay" class="text-xs sm:text-sm font-mono font-bold text-white">
-                            Rabu, 18 November 2026 • 21:00 WIB
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Live System Clock -->
-                <div class="hidden xl:flex flex-col items-end bg-slate-950/70 border border-slate-800 px-3 py-1.5 rounded-xl">
-                    <span class="text-[10px] text-slate-400 uppercase tracking-wider">Command Clock (WIB / WITA)</span>
-                    <span id="liveClock" class="text-xs font-mono font-semibold text-cyan-400">--:--:-- WIB</span>
-                </div>
-
-                <!-- Action Buttons -->
-                <div class="flex items-center gap-2 no-print">
-                    <button onclick="openUpdateModal()" class="flex items-center gap-1.5 bg-[#005596] hover:bg-blue-600 text-white text-xs sm:text-sm font-semibold px-3.5 py-2 rounded-xl shadow-lg shadow-blue-950/50 transition-all active:scale-95 border border-blue-400/30">
-                        <i data-lucide="radio" class="w-4 h-4 text-emerald-300"></i>
-                        <span>Update Situasi</span>
-                    </button>
-                    <button onclick="window.print()" title="Cetak / Simpan PDF Laporan" class="flex items-center gap-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs sm:text-sm font-medium px-3 py-2 rounded-xl border border-slate-700 transition-all">
-                        <i data-lucide="printer" class="w-4 h-4"></i>
-                        <span class="hidden sm:inline">Cetak</span>
-                    </button>
-                </div>
-            </div>
-        </div>
-    </header>
-
-    <!-- MAIN CONTENT WORKSPACE -->
-    <main class="flex-1 max-w-[1600px] w-full mx-auto p-3 sm:p-4 flex flex-col gap-4">
-
-        <!-- TOP KPI & SITUATION NOTE ROW -->
-        <section class="grid grid-cols-1 lg:grid-cols-12 gap-3 sm:gap-4">
-            <!-- Situation Note Banner (7 cols on lg) -->
-            <div id="situationNoteCard" class="lg:col-span-7 bg-gradient-to-r from-emerald-950/60 via-slate-900 to-slate-900 border border-emerald-500/40 rounded-2xl p-4 flex items-start gap-3.5 shadow-lg">
-                <div id="situationIconBox" class="w-11 h-11 rounded-xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center shrink-0 mt-0.5">
-                    <i data-lucide="check-circle-2" class="w-6 h-6 text-emerald-400"></i>
-                </div>
-                <div class="flex-1 min-w-0">
-                    <div class="flex flex-wrap items-center justify-between gap-2 mb-1">
-                        <div class="flex items-center gap-2">
-                            <span id="overallStatusBadge" class="px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
-                                STATUS UMUM: AMAN & KONDUSIF
-                            </span>
-                            <span class="text-xs text-slate-400 font-mono">SITREP-SHU</span>
-                        </div>
-                        <button onclick="openUpdateModal()" class="text-xs text-blue-400 hover:text-blue-300 underline font-medium no-print">
-                            Edit Catatan
-                        </button>
-                    </div>
-                    <p id="situationNoteText" class="text-sm sm:text-base font-medium text-slate-100 leading-relaxed">
-                        Rabu, 18 November 2026. Tidak ada kegiatan unjuk rasa di wilayah area Pertamina group. Situasi aman dan kondusif.
-                    </p>
-                </div>
-            </div>
-
-            <!-- KPI Metrics Grid (5 cols on lg) -->
-            <div class="lg:col-span-5 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-2 xl:grid-cols-4 gap-2.5 sm:gap-3">
-                <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-3 flex flex-col justify-between">
-                    <span class="text-[11px] font-medium text-slate-400 uppercase tracking-wider">Zona Dipantau</span>
-                    <div class="flex items-baseline justify-between mt-1">
-                        <span id="kpiTotalZones" class="text-2xl font-extrabold text-white font-mono">8/8</span>
-                        <span class="text-xs text-blue-400 font-semibold">Aktif</span>
-                    </div>
-                </div>
-
-                <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-3 flex flex-col justify-between">
-                    <span class="text-[11px] font-medium text-slate-400 uppercase tracking-wider">Kondusif (Hijau)</span>
-                    <div class="flex items-baseline justify-between mt-1">
-                        <span id="kpiSafeZones" class="text-2xl font-extrabold text-emerald-400 font-mono">8</span>
-                        <span id="kpiSafePercent" class="text-xs text-emerald-400 font-semibold">100%</span>
-                    </div>
-                </div>
-
-                <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-3 flex flex-col justify-between">
-                    <span class="text-[11px] font-medium text-slate-400 uppercase tracking-wider">Waspada / Kritis</span>
-                    <div class="flex items-baseline justify-between mt-1">
-                        <span id="kpiAlertZones" class="text-2xl font-extrabold text-slate-300 font-mono">0</span>
-                        <span id="kpiAlertLabel" class="text-xs text-slate-400 font-semibold">Nihil</span>
-                    </div>
-                </div>
-
-                <div class="bg-slate-900/90 border border-slate-800 rounded-2xl p-3 flex flex-col justify-between">
-                    <span class="text-[11px] font-medium text-slate-400 uppercase tracking-wider">Laporan Unras</span>
-                    <div class="flex items-baseline justify-between mt-1">
-                        <span id="kpiProtestCount" class="text-2xl font-extrabold text-emerald-400 font-mono">0</span>
-                        <span class="text-xs text-slate-400 font-semibold">Kejadian</span>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- INTERACTIVE MAP + SIDEBAR INTELLIGENCE PANEL -->
-        <section class="grid grid-cols-1 lg:grid-cols-12 gap-4 flex-1 min-h-[580px]">
-            
-            <!-- LEFT / MAIN: INTERACTIVE MAP CONTAINER (8 cols on lg) -->
-            <div class="lg:col-span-8 bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden flex flex-col shadow-2xl relative min-h-[460px] lg:min-h-[600px]">
-                
-                <!-- Map Top Control Bar -->
-                <div class="bg-slate-900/95 border-b border-slate-800 p-2.5 sm:p-3 flex flex-wrap items-center justify-between gap-2 z-20 no-print">
-                    <!-- Filter Pills -->
-                    <div class="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0">
-                        <button onclick="setFilter('ALL')" id="filter-ALL" class="filter-btn active px-3 py-1.5 rounded-lg text-xs font-semibold bg-blue-600 text-white transition">
-                            Semua Zona (8)
-                        </button>
-                        <button onclick="setFilter('AMAN')" id="filter-AMAN" class="filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 transition flex items-center gap-1.5">
-                            <span class="w-2 h-2 rounded-full bg-emerald-400"></span> Aman
-                        </button>
-                        <button onclick="setFilter('WASPADA')" id="filter-WASPADA" class="filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 transition flex items-center gap-1.5">
-                            <span class="w-2 h-2 rounded-full bg-amber-400"></span> Waspada
-                        </button>
-                        <button onclick="setFilter('KRITIS')" id="filter-KRITIS" class="filter-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300 hover:bg-slate-700 transition flex items-center gap-1.5">
-                            <span class="w-2 h-2 rounded-full bg-red-500"></span> Kritis
-                        </button>
-                    </div>
-
-                    <!-- Basemap & View Controls -->
-                    <div class="flex items-center gap-2 ml-auto">
-                        <select id="basemapSelector" onchange="changeBasemap(this.value)" class="bg-slate-800 border border-slate-700 text-slate-200 text-xs rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-blue-500">
-                            <option value="dark">Peta: Dark Tactical</option>
-                            <option value="light">Peta: Clean Light</option>
-                            <option value="satellite">Peta: Citra Satelit</option>
-                        </select>
-                        <button onclick="resetMapView()" class="flex items-center gap-1 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-medium px-2.5 py-1.5 rounded-lg transition" title="Reset Tampilan Peta Indonesia">
-                            <i data-lucide="maximize-2" class="w-3.5 h-3.5"></i>
-                            <span class="hidden sm:inline">Reset View</span>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Leaflet Map Canvas -->
-                <div class="relative flex-1 w-full h-full">
-                    <div id="map"></div>
-
-                    <!-- Floating Map Legend (Bottom Left) -->
-                    <div class="absolute bottom-3 left-3 z-20 bg-slate-950/90 backdrop-blur-md border border-slate-800 rounded-xl p-3 shadow-xl max-w-[240px]">
-                        <div class="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-2 flex items-center gap-1.5">
-                            <i data-lucide="layers" class="w-3.5 h-3.5 text-blue-400"></i>
-                            <span>Legenda Status Keamanan</span>
-                        </div>
-                        <div class="space-y-1.5 text-xs">
-                            <div class="flex items-center gap-2">
-                                <span class="w-3 h-3 rounded-full bg-[#8CC63F] border border-white/60 shrink-0"></span>
-                                <span class="text-slate-200 font-medium">Aman / Kondusif (Normal)</span>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <span class="w-3 h-3 rounded-full bg-amber-400 border border-white/60 shrink-0"></span>
-                                <span class="text-slate-200 font-medium">Waspada / Siaga 2 (Potensi Unras)</span>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <span class="w-3 h-3 rounded-full bg-red-500 border border-white/60 shrink-0"></span>
-                                <span class="text-slate-200 font-medium">Kritis / Siaga 1 (Gangguan Aktif)</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- RIGHT: ZONE LIST & SELECTED ZONE INSPECTOR (4 cols on lg) -->
-            <div class="lg:col-span-4 flex flex-col gap-4">
-                
-                <!-- Selected Zone Detail Card -->
-                <div id="zoneDetailPanel" class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl flex flex-col gap-3">
-                    <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
-                        <div class="flex items-center gap-2">
-                            <i data-lucide="radar" class="w-4 h-4 text-blue-400"></i>
-                            <h2 class="text-xs font-bold uppercase tracking-wider text-slate-300">Detail Wilayah Kerja (WK)</h2>
-                        </div>
-                        <span id="detailZoneCode" class="text-[11px] font-mono bg-slate-800 text-slate-300 px-2 py-0.5 rounded">REG-ALL</span>
-                    </div>
-
-                    <div id="detailContent">
-                        <!-- Populated dynamically via JS -->
-                    </div>
-                </div>
-
-                <!-- Interactive Zone Directory List -->
-                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl flex-1 flex flex-col min-h-[280px]">
-                    <div class="flex items-center justify-between gap-2 mb-3">
-                        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-300 flex items-center gap-1.5">
-                            <i data-lucide="map-pin" class="w-4 h-4 text-[#8CC63F]"></i>
-                            <span>Daftar Wilayah Operasi (8 Zona)</span>
-                        </h3>
-                    </div>
-
-                    <!-- Search Input -->
-                    <div class="relative mb-3 no-print">
-                        <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
-                        <input type="text" id="zoneSearchInput" oninput="renderZoneList()" placeholder="Cari zona, lapangan, atau kota..." class="w-full bg-slate-950 border border-slate-800 focus:border-blue-500 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-200 placeholder-slate-500 focus:outline-none">
-                    </div>
-
-                    <!-- Scrollable Zone Cards -->
-                    <div id="zoneListContainer" class="space-y-2 overflow-y-auto max-h-[320px] pr-1">
-                        <!-- Populated dynamically via JS -->
-                    </div>
-                </div>
-
-            </div>
-        </section>
-    </main>
-
-    <!-- CORPORATE FOOTER -->
-    <footer class="bg-slate-950 border-t border-slate-800/90 mt-4 py-3.5 px-4">
-        <div class="max-w-[1600px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-400">
-            <div class="flex flex-wrap items-center justify-center sm:justify-start gap-3">
-                <span class="font-bold text-slate-200">PERTAMINA HULU ENERGI</span>
-                <span class="hidden sm:inline text-slate-700">|</span>
-                <span>Subholding Upstream Security Command & Control</span>
-                <span class="hidden md:inline text-slate-700">|</span>
-                <a href="https://phe.pertamina.com" target="_blank" rel="noopener noreferrer" class="text-blue-400 hover:text-blue-300 flex items-center gap-1 font-medium">
-                    <i data-lucide="globe" class="w-3.5 h-3.5"></i>
-                    phe.pertamina.com
-                </a>
-            </div>
-            
-            <div class="flex items-center gap-3">
-                <div class="flex items-center gap-2 bg-slate-900 border border-slate-800 px-3 py-1 rounded-full">
-                    <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
-                    <span class="font-semibold text-slate-300">PERTAMINA CALL CENTER</span>
-                    <span class="font-mono font-extrabold text-sm text-white bg-[#ED1C24] px-2 py-0.5 rounded-md">135</span>
-                </div>
-            </div>
-        </div>
-    </footer>
-
-    <!-- LIVE UPDATE SITUATION MODAL (OPERATOR MODE) -->
-    <div id="updateModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/75 backdrop-blur-sm p-4">
-        <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-xl w-full shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-            <!-- Modal Header -->
-            <div class="bg-slate-950 border-b border-slate-800 px-5 py-4 flex items-center justify-between">
-                <div class="flex items-center gap-2.5">
-                    <div class="w-8 h-8 rounded-lg bg-blue-500/20 border border-blue-500/40 flex items-center justify-center">
-                        <i data-lucide="sliders" class="w-4 h-4 text-blue-400"></i>
-                    </div>
-                    <div>
-                        <h3 class="text-sm font-bold text-white">Update Situasi Keamanan (Live SITREP)</h3>
-                        <p class="text-[11px] text-slate-400">Perbarui laporan situasi umum & status masing-masing zona operasi</p>
-                    </div>
-                </div>
-                <button onclick="closeUpdateModal()" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800">
-                    <i data-lucide="x" class="w-5 h-5"></i>
-                </button>
-            </div>
-
-            <!-- Modal Body -->
-            <div class="p-5 space-y-4 max-h-[75vh] overflow-y-auto">
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-300 mb-1">Waktu Laporan (WIB)</label>
-                        <input type="text" id="inputTimestamp" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:border-blue-500 focus:outline-none" value="Rabu, 18 November 2026 • 21:00 WIB">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-300 mb-1">Jumlah Kegiatan Unras Aktif</label>
-                        <input type="number" id="inputProtestCount" min="0" max="99" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:border-blue-500 focus:outline-none" value="0">
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block text-xs font-semibold text-slate-300 mb-1">Catatan Situasi Umum (Situation Note)</label>
-                    <textarea id="inputSituationNote" rows="2" class="w-full bg-slate-950 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white focus:border-blue-500 focus:outline-none">Rabu, 18 November 2026. Tidak ada kegiatan unjuk rasa di wilayah area Pertamina group. Situasi aman dan kondusif.</textarea>
-                </div>
-
-                <div class="border-t border-slate-800 pt-3">
-                    <div class="flex items-center justify-between mb-2">
-                        <label class="text-xs font-bold uppercase tracking-wider text-slate-300">Status Per Wilayah Kerja (8 Zona)</label>
-                        <button type="button" onclick="setAllZonesSafe()" class="text-[11px] text-emerald-400 hover:text-emerald-300 font-semibold">
-                            Set Semua Aman (Hijau)
-                        </button>
-                    </div>
-                    <div id="modalZoneInputs" class="space-y-2.5">
-                        <!-- Dynamically generated zone editors -->
-                    </div>
-                </div>
-            </div>
-
-            <!-- Modal Footer -->
-            <div class="bg-slate-950 border-t border-slate-800 px-5 py-3.5 flex items-center justify-end gap-2.5">
-                <button onclick="closeUpdateModal()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-300 transition">
-                    Batal
-                </button>
-                <button onclick="saveSituationUpdate()" class="px-4 py-2 rounded-xl text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-950/50 transition flex items-center gap-1.5">
-                    <i data-lucide="check" class="w-4 h-4"></i>
-                    <span>Terapkan & Perbarui Peta</span>
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- TOAST NOTIFICATION -->
-    <div id="toastNotification" class="fixed bottom-5 right-5 z-50 hidden items-center gap-2.5 bg-slate-900 border border-emerald-500/50 text-white px-4 py-3 rounded-xl shadow-2xl text-xs font-medium">
-        <i data-lucide="check-circle" class="w-4 h-4 text-emerald-400"></i>
-        <span id="toastMessage">Situasi berhasil diperbarui!</span>
-    </div>
-
-    <script>
-        // =========================================================================
-        // 1. DATA MODEL: 8 OPERATIONAL ZONES OF SUBHOLDING UPSTREAM (PERTAMINA)
-        // =========================================================================
-        let reportMeta = {
-            timestamp: "Rabu, 18 November 2026 • 21:00 WIB",
-            note: "Rabu, 18 November 2026. Tidak ada kegiatan unjuk rasa di wilayah area Pertamina group. Situasi aman dan kondusif.",
-            protestCount: 0
-        };
-
-        let zonesData = [
-            {
-                id: "zona-1",
-                name: "Zona 1",
-                regional: "Regional 1 - Sumatera Bagian Utara",
-                lat: 3.85,
-                lng: 97.65,
-                radius: 145000,
-                status: "AMAN", // AMAN | WASPADA | KRITIS
-                assets: "Aceh, Rantau, Pangkalan Susu, Jambi, Kampar, Siak, Lirik",
-                entities: "PT Pertamina EP (Rantau, Pangkalan Susu, Jambi), PHE NSO, PHE Jambi Merang",
-                activityLog: "Patroli rutin perimeter fasilitas produksi & jalur pipa berjalan normal. Nihil unjuk rasa.",
-                readiness: "Normal (Siaga 3) • Personel Security & BKO TNI/Polri lengkap sesuai ploting.",
-                pic: "Security Ops Regional 1 - Zona 1"
-            },
-            {
-                id: "wk-rokan",
-                name: "WK Rokan",
-                regional: "Regional 1 - Riau",
-                lat: 1.15,
-                lng: 101.25,
-                radius: 135000,
-                status: "AMAN",
-                assets: "Duri, Dumai, Minas, Bangko, Bekasap, Petapahan",
-                entities: "PT Pertamina Hulu Rokan (PHR)",
-                activityLog: "Operasional pengeboran & penyaluran minyak mentah ke Dumai aman terkendali. Tidak ada gangguan sosial.",
-                readiness: "Normal (Siaga 3) • Pemantauan CCTV & patroli mobile koridor pipa Rokan aktif 24/7.",
-                pic: "Corporate Security PHR Rokan"
-            },
-            {
-                id: "zona-4",
-                name: "Zona 4",
-                regional: "Regional 1 - Sumatera Bagian Selatan",
-                lat: -3.35,
-                lng: 104.15,
-                radius: 140000,
-                status: "AMAN",
-                assets: "Prabumulih, Adera, Pendopo, Limau, Ramba, Ogan Komering",
-                entities: "PT Pertamina EP (Prabumulih, Adera, Pendopo, Limau, Ramba), PHE Ogan Komering",
-                activityLog: "Situasi wilayah Sumsel kondusif. Koordinasi intensif dengan aparat kewilayahan berjalan baik.",
-                readiness: "Normal (Siaga 3) • Pengamanan objek vital nasional (Obvitnas) terjaga.",
-                pic: "Security Ops Regional 1 - Zona 4"
-            },
-            {
-                id: "wk-reg-2",
-                name: "WK Reg 2",
-                regional: "Regional 2 - Jawa Bagian Barat & Offshore",
-                lat: -6.28,
-                lng: 107.85,
-                radius: 135000,
-                status: "AMAN",
-                assets: "Subang, Indramayu, Jatibarang, Tambun, Offshore ONWJ & OSES, PHE Tower Jakarta",
-                entities: "PHE ONWJ, PHE OSES, Pertamina EP Jawa Bagian Barat",
-                activityLog: "Tidak ada aksi penyampaian pendapat di sekitar PHE Tower maupun fasilitas darat/lepas pantai.",
-                readiness: "Normal (Siaga 3) • Patroli laut sekitar anjungan lepas pantai & terminal darat aman.",
-                pic: "Security Command Regional 2"
-            },
-            {
-                id: "zona-11-12",
-                name: "Zona 11 & 12",
-                regional: "Regional 4 - Jawa Timur, Madura & Cepu",
-                lat: -7.12,
-                lng: 112.45,
-                radius: 145000,
-                status: "AMAN",
-                assets: "Surabaya, Gresik, Madura Offshore (WMO), Poleng, Tuban, Bojonegoro (Cepu), Sukowati",
-                entities: "PHE WMO, Pertamina EP Cepu (PEPC), Pertamina EP Sukowati & Poleng",
-                activityLog: "Seluruh aktivitas operasi lapangan gas Jambaran-Tiung Biru & WMO berlangsung aman tanpa hambatan.",
-                readiness: "Normal (Siaga 3) • Kesiapsiagaan personel pengamanan internal & eksternal optimal.",
-                pic: "Security Ops Regional 4 - Zona 11 & 12"
-            },
-            {
-                id: "wk-reg-3",
-                name: "WK Reg-3 & Badak LNG",
-                regional: "Regional 3 - Kalimantan",
-                lat: -0.45,
-                lng: 117.15,
-                radius: 175000,
-                status: "AMAN",
-                assets: "Balikpapan, Handil, Senipah, Sanga-Sanga, Tanjung, Tarakan, Bunyu, Bontang (Badak LNG)",
-                entities: "PT Pertamina Hulu Mahakam (PHM), PHKT, PHSS, Pertamina EP Kalimantan, PT Badak NGL",
-                activityLog: "Operasional kilang Badak LNG Bontang dan lapangan delta Mahakam berjalan normal & kondusif.",
-                readiness: "Normal (Siaga 3) • Pengamanan terpadu darat & perairan delta Mahakam-Bontang siaga.",
-                pic: "Security Command Regional 3 & Badak LNG"
-            },
-            {
-                id: "zona-13",
-                name: "Zona 13",
-                regional: "Regional 4 - Sulawesi",
-                lat: -1.35,
-                lng: 122.35,
-                radius: 145000,
-                status: "AMAN",
-                assets: "Donggi Matindok, Senoro, Luwuk Banggai, Makassar",
-                entities: "Pertamina EP Donggi Matindok Field, JOB Pertamina-Medco E&P Tomori Sulawesi",
-                activityLog: "Situasi sosial masyarakat sekitar fasilitas produksi gas Sulawesi Tengah dalam keadaan kondusif.",
-                readiness: "Normal (Siaga 3) • Pengawasan akses masuk kilang dan sumur produksi berjalan ketat.",
-                pic: "Security Ops Regional 4 - Zona 13"
-            },
-            {
-                id: "zona-14",
-                name: "Zona 14",
-                regional: "Regional 4 - Papua & Maluku",
-                lat: -1.15,
-                lng: 131.65,
-                radius: 155000,
-                status: "AMAN",
-                assets: "Sorong, Salawati, Kepala Burung, Klamono, Bintuni, Babo, Pulau Seram",
-                entities: "Pertamina EP Papua Field, JOB Pertamina-PetroChina Salawati, PHE Babo",
-                activityLog: "Kegiatan operasional hulu migas di wilayah Papua Barat Daya & Maluku aman terkendali.",
-                readiness: "Normal (Siaga 3) • Sinergi pengamanan bersama TNI/Polri & tokoh masyarakat setempat terjaga.",
-                pic: "Security Ops Regional 4 - Zona 14"
-            }
-        ];
-
-        // Status Styling Dictionary
-        const STATUS_CONFIG = {
-            AMAN: {
-                label: "Aman & Kondusif",
-                shortLabel: "AMAN",
-                colorHex: "#8CC63F",
-                fillHex: "#8CC63F",
-                badgeBg: "bg-emerald-500/20",
-                badgeText: "text-emerald-300",
-                badgeBorder: "border-emerald-500/40",
-                dotClass: "bg-[#8CC63F]"
-            },
-            WASPADA: {
-                label: "Waspada / Siaga 2",
-                shortLabel: "WASPADA",
-                colorHex: "#F59E0B",
-                fillHex: "#F59E0B",
-                badgeBg: "bg-amber-500/20",
-                badgeText: "text-amber-300",
-                badgeBorder: "border-amber-500/40",
-                dotClass: "bg-amber-400"
-            },
-            KRITIS: {
-                label: "Ancaman Tinggi / Siaga 1",
-                shortLabel: "KRITIS",
-                colorHex: "#EF4444",
-                fillHex: "#EF4444",
-                badgeBg: "bg-red-500/20",
-                badgeText: "text-red-300",
-                badgeBorder: "border-red-500/40",
-                dotClass: "bg-red-500"
-            }
-        };
-
-        // =========================================================================
-        // 2. STATE & MAP INITIALIZATION
-        // =========================================================================
-        let map;
-        let currentTileLayer;
-        let zoneLayersGroup = L.layerGroup();
-        let activeFilter = "ALL";
-        let selectedZoneId = "wk-reg-3"; // Default selected zone
-
-        const TILE_LAYERS = {
-            dark: {
-                url: "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
-                attribution: '&copy; OpenStreetMap &copy; CARTO | Pertamina Hulu Energi'
-            },
-            light: {
-                url: "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
-                attribution: '&copy; OpenStreetMap &copy; CARTO | Pertamina Hulu Energi'
-            },
-            satellite: {
-                url: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",
-                attribution: 'Tiles &copy; Esri | Pertamina Hulu Energi'
-            }
-        };
-
-        function initMap() {
-            // Center on Indonesia archipelago
-            map = L.map('map', {
-                center: [-2.2, 116.5],
-                zoom: 5,
-                minZoom: 4,
-                maxZoom: 12,
-                zoomControl: false
-            });
-
-            // Add Zoom Control to top-right
-            L.control.zoom({ position: 'topright' }).addTo(map);
-
-            // Set initial dark tactical basemap
-            currentTileLayer = L.tileLayer(TILE_LAYERS.dark.url, {
-                attribution: TILE_LAYERS.dark.attribution,
-                subdomains: 'abcd',
-                maxZoom: 19
-            }).addTo(map);
-
-            zoneLayersGroup.addTo(map);
-            renderMapMarkers();
-        }
-
-        function changeBasemap(styleKey) {
-            if (currentTileLayer) {
-                map.removeLayer(currentTileLayer);
-            }
-            const layerConfig = TILE_LAYERS[styleKey] || TILE_LAYERS.dark;
-            currentTileLayer = L.tileLayer(layerConfig.url, {
-                attribution: layerConfig.attribution,
-                maxZoom: 19
-            }).addTo(map);
-        }
-
-        function resetMapView() {
-            map.flyTo([-2.2, 116.5], 5, { duration: 1.2 });
-        }
-
-        // =========================================================================
-        // 3. RENDER MAP CIRCLES, PULSING MARKERS & POPUPS
-        // =========================================================================
-        function renderMapMarkers() {
-            zoneLayersGroup.clearLayers();
-
-            zonesData.forEach(zone => {
-                if (activeFilter !== "ALL" && zone.status !== activeFilter) return;
-
-                const cfg = STATUS_CONFIG[zone.status];
-
-                // 1. Operational Coverage Circle (resembling the green ovals in the PDF map)
-                const circle = L.circle([zone.lat, zone.lng], {
-                    radius: zone.radius,
-                    color: cfg.colorHex,
-                    weight: 1.5,
-                    opacity: 0.75,
-                    fillColor: cfg.fillHex,
-                    fillOpacity: 0.28
-                });
-
-                // 2. Pulsing Center Marker
-                const pulseIcon = L.divIcon({
-                    className: 'custom-div-icon',
-                    html: `
-                        <div class="pulse-marker" style="width: 28px; height: 28px;">
-                            <div class="pulse-ring" style="width: 28px; height: 28px; background-color: ${cfg.colorHex};"></div>
-                            <div class="pulse-core" style="width: 14px; height: 14px; background-color: ${cfg.colorHex};"></div>
-                        </div>
-                    `,
-                    iconSize: [28, 28],
-                    iconAnchor: [14, 14]
-                });
-
-                const marker = L.marker([zone.lat, zone.lng], { icon: pulseIcon });
-
-                // Permanent subtle label tooltip
-                marker.bindTooltip(zone.name, {
-                    permanent: true,
-                    direction: 'bottom',
-                    offset: [0, 10],
-                    className: 'zone-map-label'
-                });
-
-                // Rich Interactive Popup HTML
-                const popupHtml = `
-                    <div class="p-3.5 font-sans">
-                        <div class="flex items-center justify-between gap-2 border-b border-slate-700/80 pb-2 mb-2">
-                            <div>
-                                <div class="text-[10px] text-slate-400 font-semibold uppercase">${zone.regional}</div>
-                                <div class="text-sm font-extrabold text-white">${zone.name}</div>
-                            </div>
-                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${cfg.badgeBg} ${cfg.badgeText} border ${cfg.badgeBorder}">
-                                ${cfg.shortLabel}
-                            </span>
-                        </div>
-                        <div class="space-y-1.5 text-xs text-slate-300">
-                            <div><span class="text-slate-400 font-semibold">Area Operasi:</span> ${zone.assets}</div>
-                            <div><span class="text-slate-400 font-semibold">Situasi:</span> ${zone.activityLog}</div>
-                        </div>
-                        <button onclick="selectZone('${zone.id}')" class="mt-3 w-full bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold py-1.5 px-3 rounded-lg transition">
-                            Lihat Detail Lengkap
-                        </button>
-                    </div>
-                `;
-
-                marker.bindPopup(popupHtml);
-                circle.bindPopup(popupHtml);
-
-                // Click events
-                marker.on('click', () => selectZone(zone.id, false));
-                circle.on('click', () => selectZone(zone.id, false));
-
-                zoneLayersGroup.addLayer(circle);
-                zoneLayersGroup.addLayer(marker);
-            });
-        }
-
-        // =========================================================================
-        // 4. SIDEBAR & DETAIL INSPECTOR RENDERING
-        // =========================================================================
-        function selectZone(zoneId, flyToZone = true) {
-            selectedZoneId = zoneId;
-            const zone = zonesData.find(z => z.id === zoneId);
-            if (!zone) return;
-
-            const cfg = STATUS_CONFIG[zone.status];
-            document.getElementById('detailZoneCode').textContent = zone.id.toUpperCase();
-
-            document.getElementById('detailContent').innerHTML = `
-                <div class="space-y-3">
-                    <div class="flex items-start justify-between gap-2">
-                        <div>
-                            <h3 class="text-base sm:text-lg font-extrabold text-white">${zone.name}</h3>
-                            <p class="text-xs text-blue-400 font-medium">${zone.regional}</p>
-                        </div>
-                        <span class="px-2.5 py-1 rounded-full text-[11px] font-bold uppercase tracking-wider ${cfg.badgeBg} ${cfg.badgeText} border ${cfg.badgeBorder} shrink-0">
-                            ${cfg.label}
-                        </span>
-                    </div>
-
-                    <div class="bg-slate-950/80 border border-slate-800/90 rounded-xl p-3 space-y-2.5 text-xs">
-                        <div>
-                            <span class="text-[10px] uppercase tracking-wider text-slate-400 font-bold block mb-0.5">Cakupan Lapangan & Wilayah</span>
-                            <p class="text-slate-200 leading-relaxed">${zone.assets}</p>
-                        </div>
-                        <div class="border-t border-slate-800/80 pt-2">
-                            <span class="text-[10px] uppercase tracking-wider text-slate-400 font-bold block mb-0.5">Entitas Anak Perusahaan / KKKS</span>
-                            <p class="text-slate-300">${zone.entities}</p>
-                        </div>
-                        <div class="border-t border-slate-800/80 pt-2">
-                            <span class="text-[10px] uppercase tracking-wider text-slate-400 font-bold block mb-0.5">Pemantauan Situasi & Unras</span>
-                            <p class="text-slate-200">${zone.activityLog}</p>
-                        </div>
-                        <div class="border-t border-slate-800/80 pt-2">
-                            <span class="text-[10px] uppercase tracking-wider text-slate-400 font-bold block mb-0.5">Kesiapsiagaan Pengamanan</span>
-                            <p class="text-emerald-300/90 font-medium">${zone.readiness}</p>
-                        </div>
-                    </div>
-
-                    <div class="flex items-center justify-between text-[11px] text-slate-400 pt-0.5">
-                        <span>Koordinat: <strong class="font-mono text-slate-300">${zone.lat.toFixed(2)}°, ${zone.lng.toFixed(2)}°</strong></span>
-                        <button onclick="focusZoneOnMap('${zone.id}')" class="text-blue-400 hover:text-blue-300 font-semibold flex items-center gap-1 no-print">
-                            <i data-lucide="crosshair" class="w-3.5 h-3.5"></i> Fokus Peta
-                        </button>
-                    </div>
-                </div>
-            `;
-
-            if (flyToZone && map) {
-                map.flyTo([zone.lat, zone.lng], 7, { duration: 1.0 });
-            }
-
-            renderZoneList();
-            lucide.createIcons();
-        }
-
-        function focusZoneOnMap(zoneId) {
-            const zone = zonesData.find(z => z.id === zoneId);
-            if (zone && map) {
-                map.flyTo([zone.lat, zone.lng], 7, { duration: 1.0 });
-            }
-        }
-
-        function renderZoneList() {
-            const container = document.getElementById('zoneListContainer');
-            const searchQuery = (document.getElementById('zoneSearchInput')?.value || "").toLowerCase();
-
-            const filtered = zonesData.filter(zone => {
-                const matchesFilter = activeFilter === "ALL" || zone.status === activeFilter;
-                const matchesSearch =
-                    zone.name.toLowerCase().includes(searchQuery) ||
-                    zone.regional.toLowerCase().includes(searchQuery) ||
-                    zone.assets.toLowerCase().includes(searchQuery) ||
-                    zone.entities.toLowerCase().includes(searchQuery);
-                return matchesFilter && matchesSearch;
-            });
-
-            if (filtered.length === 0) {
-                container.innerHTML = `
-                    <div class="text-center py-6 text-xs text-slate-500">
-                        Tidak ada zona yang sesuai dengan filter/pencarian.
-                    </div>
-                `;
-                return;
-            }
-
-            container.innerHTML = filtered.map(zone => {
-                const cfg = STATUS_CONFIG[zone.status];
-                const isSelected = zone.id === selectedZoneId;
-                return `
-                    <button onclick="selectZone('${zone.id}')" class="w-full text-left p-3 rounded-xl border transition-all flex items-start justify-between gap-2.5 ${
-                        isSelected
-                            ? 'bg-blue-950/40 border-blue-500/60 shadow-md'
-                            : 'bg-slate-950/60 border-slate-800/80 hover:bg-slate-800/70 hover:border-slate-700'
-                    }">
-                        <div class="flex items-start gap-2.5 min-w-0">
-                            <span class="w-2.5 h-2.5 rounded-full ${cfg.dotClass} mt-1 shrink-0 ring-4 ring-slate-900"></span>
-                            <div class="min-w-0">
-                                <div class="text-xs font-bold text-white truncate">${zone.name}</div>
-                                <div class="text-[11px] text-slate-400 truncate">${zone.assets}</div>
-                            </div>
-                        </div>
-                        <span class="px-2 py-0.5 rounded text-[10px] font-bold shrink-0 ${cfg.badgeBg} ${cfg.badgeText} border ${cfg.badgeBorder}">
-                            ${cfg.shortLabel}
-                        </span>
-                    </button>
-                `;
-            }).join('');
-        }
-
-        // =========================================================================
-        // 5. FILTERING & KPI DASHBOARD SYNCHRONIZATION
-        // =========================================================================
-        function setFilter(filterKey) {
-            activeFilter = filterKey;
-
-            // Update button active styles
-            document.querySelectorAll('.filter-btn').forEach(btn => {
-                btn.classList.remove('bg-blue-600', 'text-white');
-                btn.classList.add('bg-slate-800', 'text-slate-300');
-            });
-            const activeBtn = document.getElementById(`filter-${filterKey}`);
-            if (activeBtn) {
-                activeBtn.classList.remove('bg-slate-800', 'text-slate-300');
-                activeBtn.classList.add('bg-blue-600', 'text-white');
-            }
-
-            renderMapMarkers();
-            renderZoneList();
-        }
-
-        function updateDashboardSummary() {
-            const total = zonesData.length;
-            const safeCount = zonesData.filter(z => z.status === "AMAN").length;
-            const waspadaCount = zonesData.filter(z => z.status === "WASPADA").length;
-            const kritisCount = zonesData.filter(z => z.status === "KRITIS").length;
-            const alertTotal = waspadaCount + kritisCount;
-            const safePct = Math.round((safeCount / total) * 100);
-
-            document.getElementById('kpiTotalZones').textContent = `${total}/${total}`;
-            document.getElementById('kpiSafeZones').textContent = safeCount;
-            document.getElementById('kpiSafePercent').textContent = `${safePct}%`;
-            document.getElementById('kpiAlertZones').textContent = alertTotal;
-            document.getElementById('kpiAlertLabel').textContent = alertTotal === 0 ? "Nihil" : `${waspadaCount}W / ${kritisCount}K`;
-            document.getElementById('kpiAlertZones').className = `text-2xl font-extrabold font-mono ${alertTotal > 0 ? 'text-amber-400' : 'text-slate-300'}`;
-            document.getElementById('kpiProtestCount').textContent = reportMeta.protestCount;
-            document.getElementById('kpiProtestCount').className = `text-2xl font-extrabold font-mono ${reportMeta.protestCount > 0 ? 'text-red-400' : 'text-emerald-400'}`;
-
-            // Update Header & Situation Banner
-            document.getElementById('reportTimestampDisplay').textContent = reportMeta.timestamp;
-            document.getElementById('situationNoteText').textContent = reportMeta.note;
-
-            const noteCard = document.getElementById('situationNoteCard');
-            const statusBadge = document.getElementById('overallStatusBadge');
-            const headerPulse = document.getElementById('headerPulseDot');
-            const headerSolid = document.getElementById('headerSolidDot');
-
-            if (kritisCount > 0) {
-                noteCard.className = "lg:col-span-7 bg-gradient-to-r from-red-950/70 via-slate-900 to-slate-900 border border-red-500/50 rounded-2xl p-4 flex items-start gap-3.5 shadow-lg";
-                statusBadge.className = "px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider bg-red-500/20 text-red-300 border border-red-500/40";
-                statusBadge.textContent = "STATUS UMUM: SIAGA 1 / PERHATIAN KHUSUS";
-                headerPulse.className = "animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75";
-                headerSolid.className = "relative inline-flex rounded-full h-2.5 w-2.5 bg-red-500";
-            } else if (waspadaCount > 0) {
-                noteCard.className = "lg:col-span-7 bg-gradient-to-r from-amber-950/60 via-slate-900 to-slate-900 border border-amber-500/50 rounded-2xl p-4 flex items-start gap-3.5 shadow-lg";
-                statusBadge.className = "px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider bg-amber-500/20 text-amber-300 border border-amber-500/40";
-                statusBadge.textContent = "STATUS UMUM: WASPADA / PEMANTAUAN INTENSIF";
-                headerPulse.className = "animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75";
-                headerSolid.className = "relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500";
-            } else {
-                noteCard.className = "lg:col-span-7 bg-gradient-to-r from-emerald-950/60 via-slate-900 to-slate-900 border border-emerald-500/40 rounded-2xl p-4 flex items-start gap-3.5 shadow-lg";
-                statusBadge.className = "px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/40";
-                statusBadge.textContent = "STATUS UMUM: AMAN & KONDUSIF";
-                headerPulse.className = "animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75";
-                headerSolid.className = "relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500";
-            }
-        }
-
-        // =========================================================================
-        // 6. OPERATOR LIVE UPDATE MODAL LOGIC
-        // =========================================================================
-        function openUpdateModal() {
-            document.getElementById('inputTimestamp').value = reportMeta.timestamp;
-            document.getElementById('inputProtestCount').value = reportMeta.protestCount;
-            document.getElementById('inputSituationNote').value = reportMeta.note;
-
-            const modalZoneContainer = document.getElementById('modalZoneInputs');
-            modalZoneContainer.innerHTML = zonesData.map(zone => `
-                <div class="bg-slate-950 border border-slate-800 rounded-xl p-3 space-y-2">
-                    <div class="flex items-center justify-between gap-2">
-                        <div>
-                            <span class="text-xs font-bold text-white">${zone.name}</span>
-                            <span class="text-[11px] text-slate-400 ml-1.5">(${zone.regional})</span>
-                        </div>
-                        <select id="status-select-${zone.id}" class="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-xs font-semibold text-white focus:outline-none focus:border-blue-500">
-                            <option value="AMAN" ${zone.status === 'AMAN' ? 'selected' : ''}>🟢 Aman / Kondusif</option>
-                            <option value="WASPADA" ${zone.status === 'WASPADA' ? 'selected' : ''}>🟡 Waspada / Siaga 2</option>
-                            <option value="KRITIS" ${zone.status === 'KRITIS' ? 'selected' : ''}>🔴 Kritis / Siaga 1</option>
-                        </select>
-                    </div>
-                    <input type="text" id="log-input-${zone.id}" value="${zone.activityLog}" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-[11px] text-slate-200 focus:border-blue-500 focus:outline-none" placeholder="Catatan situasi zona...">
-                </div>
-            `).join('');
-
-            const modal = document.getElementById('updateModal');
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-        }
-
-        function closeUpdateModal() {
-            const modal = document.getElementById('updateModal');
-            modal.classList.add('hidden');
-            modal.classList.remove('flex');
-        }
-
-        function setAllZonesSafe() {
-            zonesData.forEach(zone => {
-                const sel = document.getElementById(`status-select-${zone.id}`);
-                if (sel) sel.value = "AMAN";
-            });
-            document.getElementById('inputProtestCount').value = 0;
-        }
-
-        function saveSituationUpdate() {
-            reportMeta.timestamp = document.getElementById('inputTimestamp').value.trim() || reportMeta.timestamp;
-            reportMeta.protestCount = parseInt(document.getElementById('inputProtestCount').value, 10) || 0;
-            reportMeta.note = document.getElementById('inputSituationNote').value.trim() || reportMeta.note;
-
-            zonesData.forEach(zone => {
-                const newStatus = document.getElementById(`status-select-${zone.id}`).value;
-                const newLog = document.getElementById(`log-input-${zone.id}`).value.trim();
-                zone.status = newStatus;
-                if (newLog) zone.activityLog = newLog;
-            });
-
-            updateDashboardSummary();
-            renderMapMarkers();
-            selectZone(selectedZoneId, false);
-            closeUpdateModal();
-            showToast("Peta & Laporan Situasi berhasil diperbarui!");
-        }
-
-        function showToast(msg) {
-            const toast = document.getElementById('toastNotification');
-            document.getElementById('toastMessage').textContent = msg;
-            toast.classList.remove('hidden');
-            toast.classList.add('flex');
-            setTimeout(() => {
-                toast.classList.add('hidden');
-                toast.classList.remove('flex');
-            }, 3500);
-        }
-
-        // =========================================================================
-        // 7. REAL-TIME CLOCK (WIB & WITA)
-        // =========================================================================
-        function updateLiveClock() {
-            const now = new Date();
-            // Format WIB (UTC+7)
-            const wibFormatter = new Intl.DateTimeFormat('id-ID', {
-                timeZone: 'Asia/Jakarta',
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit',
-                hour12: false
-            });
-            // Format WITA (UTC+8)
-            const witaFormatter = new Intl.DateTimeFormat('id-ID', {
-                timeZone: 'Asia/Makassar',
-                hour: '2-digit',
-                minute: '2-digit',
-                hour12: false
-            });
-            document.getElementById('liveClock').textContent = `${wibFormatter.format(now)} WIB / ${witaFormatter.format(now)} WITA`;
-        }
-
-        // =========================================================================
-        // 8. BOOTSTRAP APPLICATION
-        // =========================================================================
-        window.addEventListener('DOMContentLoaded', () => {
-            lucide.createIcons();
-            initMap();
-            updateDashboardSummary();
-            selectZone("wk-reg-3", false);
-            updateLiveClock();
-            setInterval(updateLiveClock, 1000);
-        });
-    </script>
+<body>
+<header>
+ <div class="accent"></div>
+ <div class="head">
+  <div class="brand">
+   <div class="logo" aria-hidden="true"><svg width="27" height="27" viewBox="0 0 24 24" fill="none"><path d="M12 2 21 6v6c0 5.1-3.2 8.4-9 10-5.8-1.6-9-4.9-9-10V6l9-4Z" stroke="#b9e5ff" stroke-width="1.6"/><path d="m7.8 12 2.8 2.8 5.6-5.6" stroke="#8cc63f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+   <div><div class="eyebrow">Pertamina Hulu Energi · Internal Security Analytics</div><h1>SECURITY RISK MAP <span style="color:#71bfff">| SUBHOLDING UPSTREAM</span></h1></div>
+  </div>
+  <div class="head-actions">
+   <span class="chip">TRIS <strong>W3 NOV 2026</strong> · 12–18 Nov</span>
+   <span class="chip">CUT-OFF <strong>18 Nov 2026</strong></span>
+   <button id="updateBtn" class="btn primary no-print">✎ Validasi Status</button>
+   <button id="exportBtn" class="btn no-print">↓ Ekspor JSON</button>
+   <button id="printBtn" class="btn no-print">▣ Cetak / PDF</button>
+  </div>
+ </div>
+</header>
+<main>
+ <div class="subhead">
+  <div><h2>Executive Security Situation Overview</h2><p class="subtitle">Konsolidasi data TRIS mingguan untuk pengambilan keputusan, monitoring insiden, dan tindak lanjut PDCA.</p></div>
+  <div class="meta"><span class="chip">Sumber: TRIS W3 November 2026</span><span class="chip" style="border-color:#7e5f35;color:#f4cc93">DATA HISTORIS · BUKAN FEED LIVE</span></div>
+ </div>
+ <section class="summary">
+  <div class="summary-note"><div class="state-title">● Executive Situation Note</div><p><strong>Tren insiden menurun, tetapi kerawanan meningkat.</strong> Pada 12–18 November terdapat <strong>5 insiden</strong>, semuanya diklasifikasikan <em>Insignificant</em> dalam TRIS, dan tercatat <strong>138 penambahan kerawanan</strong>. Perlu verifikasi pengendalian pencurian aset, terutama di wilayah dengan kejadian berulang.</p><div class="micro" style="margin-top:11px;color:#a3d8ce">Status hijau tidak diberikan otomatis dari ketiadaan laporan; asesmen lapangan diperlukan.</div></div>
+  <div class="kpi"><div class="kpi-label">Insiden W3</div><div class="num" style="color:#ecf5ff">5</div><div class="hint"><span class="green">▼ 37,5%</span> vs W2 (8)</div></div>
+  <div class="kpi"><div class="kpi-label">Kerawanan W3</div><div class="num amber">138</div><div class="hint"><span class="red">▲ 4,5%</span> vs W2 (132)</div></div>
+  <div class="kpi"><div class="kpi-label">Kelompok WK Berinsiden</div><div class="num amber" id="incidentZoneKpi">3</div><div class="hint">Dari 8 kelompok peta</div></div>
+  <div class="kpi"><div class="kpi-label">Insiden YTD</div><div class="num">324</div><div class="hint">1 minor · 323 insignificant</div></div>
+  <div class="kpi"><div class="kpi-label">Kerawanan YTD</div><div class="num cyan">5.126</div><div class="hint">Kategori vulnerable TRIS</div></div>
+ </section>
+ <section class="workspace">
+  <div class="panel map-panel">
+   <div class="toolbar no-print"><div class="tabs" id="mapTabs" role="group" aria-label="Filter wilayah"><button class="tab" data-filter="all" aria-pressed="true">Semua (8)</button><button class="tab" data-filter="incident" aria-pressed="false">Ada Insiden (3)</button><button class="tab" data-filter="unassessed" aria-pressed="false">Belum Dinilai</button><button class="tab" data-filter="critical" aria-pressed="false">Kritis</button></div><div style="display:flex;gap:7px"><select class="select" id="basemap" aria-label="Gaya peta"><option value="dark">Dark Tactical</option><option value="light">Clean Light</option><option value="satellite">Citra Satelit</option></select><button class="btn small" id="resetMap">Reset</button></div></div>
+   <div class="map-wrap"><div id="map" class="map" aria-label="Peta interaktif wilayah keamanan SHU"></div><div id="mapFallback" style="display:none;position:absolute;inset:0;z-index:100;place-items:center;background:#0d1a2b;text-align:center;padding:25px;color:#aaccdf">Peta memerlukan sambungan internet untuk memuat Leaflet dan layer peta. Daftar wilayah dan insiden tetap dapat digunakan.</div><div class="map-legend"><div style="font-size:10px;color:#8bb2d8;font-weight:850;letter-spacing:1px;margin-bottom:6px">LEGENDA / SCREENING DATA</div><div class="legend-line"><span class="legend-dot" style="background:#ffc16a"></span>Ada insiden W3 (butuh tindak lanjut)</div><div class="legend-line"><span class="legend-dot" style="background:#869bb7"></span>Belum dinilai / tanpa data status</div><div class="legend-line"><span class="legend-dot" style="background:#72d28c"></span>Aman — hanya jika divalidasi</div><div class="legend-line"><span class="legend-dot" style="background:#ff7181"></span>Kritis — hanya jika divalidasi</div><div class="legend-line"><span class="legend-dot" style="background:#f97368"></span>Lokasi indikatif kejadian</div></div></div>
+   <div class="note-bar">⚠ Lingkaran merupakan <strong>kelompok geografis pemantauan</strong>, bukan batas WK resmi, radius keamanan, atau area konsesi. Titik kejadian bersifat <strong>perkiraan lokasi wilayah</strong>, bukan koordinat sumur/rig/gudang. Status pada peta tidak menggantikan penilaian Security Regional/Field.</div>
+  </div>
+  <aside class="sidebar">
+   <div class="panel"><div class="panel-header"><h3>◎ Detail Wilayah Pemantauan</h3><span class="micro" id="zoneCode">—</span></div><div class="panel-body" id="zoneDetail"></div></div>
+   <div class="panel"><div class="panel-header"><h3>⌖ Direktori Wilayah Operasi</h3><span class="micro" id="zoneListCaption">8 kelompok</span></div><div class="panel-body"><input id="zoneSearch" class="zone-filter no-print" type="search" placeholder="Cari wilayah, regional, lapangan…" aria-label="Pencarian wilayah"><div id="zoneList" class="zones-list"></div></div></div>
+  </aside>
+ </section>
+ <section class="lower">
+  <div class="panel"><div class="panel-header"><h3>Tren Insiden Keamanan Mingguan</h3><span class="micro">8 periode terakhir · TRIS</span></div><div class="panel-body"><div id="trendChart" class="chartline" role="img" aria-label="Insiden W4 Sept sampai W3 November: 9, 8, 11, 14, 8, 7, 8, 5"></div><div id="trendLabels" class="chartlabels"></div><p class="micro" style="margin-top:17px">W2 Nov: 8 kasus → W3 Nov: 5 kasus, berkurang 3 kasus. Interpretasi tren perlu mempertimbangkan konsistensi pelaporan.</p></div></div>
+  <div class="panel"><div class="panel-header"><h3>Distribusi Kerawanan YTD 2026</h3><span class="micro">Total vulnerable: 5.126</span></div><div class="panel-body"><table class="year-table"><thead><tr><th>Unit pelaporan TRIS</th><th>Total YTD</th><th>Penambahan W3</th></tr></thead><tbody id="vulnerabilityTable"></tbody></table><p class="micro" style="margin-top:12px">Unit pelaporan pada TRIS tidak identik dengan delapan kelompok geografis pada peta.</p></div></div>
+  <div class="panel wide"><div class="panel-header"><h3>Daftar 5 Insiden W3 November 2026</h3><div class="meta"><span class="tag">Jenis: Pencurian</span><span class="tag">Level TRIS: Insignificant</span></div></div><div class="panel-body" style="overflow-x:auto"><table class="incident-table"><thead><tr><th style="width:85px">Tanggal</th><th style="width:95px">Field / Unit</th><th>Deskripsi yang dilaporkan</th><th class="hide-mobile" style="width:130px">Kelompok peta</th><th style="width:118px">Level</th></tr></thead><tbody id="incidentsTable"></tbody></table><p class="micro" style="margin-top:11px">Klik baris untuk menyorot kelompok wilayah terkait. Penempatan pada kelompok peta merupakan klasifikasi geografis untuk navigasi, bukan atribusi organisasi atau WK resmi.</p></div></div>
+  <div class="panel wide"><div class="panel-header"><h3>Rekomendasi Pengendalian dan PDCA</h3><span class="micro">Rencana tindak lanjut analitis · belum dinyatakan terlaksana</span></div><div class="panel-body"><div class="analysis"><div class="step"><h4>01 · PLAN — Verifikasi Akar Masalah</h4><p>Rekonsiliasi 5 laporan dengan LHI, nomor kasus, titik kejadian, penanggung jawab aset, nilai kerugian, dan kronologi. <strong>PIC:</strong> Security Field/Unit dan Analyst Security Regional. <strong>Target:</strong> H+1 setelah penugasan.</p></div><div class="step"><h4>02 · DO — Penguatan Kontrol</h4><p>Audit inventaris warehouse/rig/wellsite, uji efektifitas CCTV, kontrol akses, penerangan, patroli berpasangan, dan pengamanan jalur line. <strong>PIC:</strong> Security + Operations + Asset Owner. <strong>Target:</strong> H+3.</p></div><div class="step"><h4>03 · CHECK / ACT — Evaluasi</h4><p>Ukur kejadian berulang, closure tindakan, recovery aset, dan temuan akses; tetapkan kontrol permanen serta lesson learned antarunit. <strong>PIC:</strong> Manager Security Regional dan Security SHU. <strong>Target:</strong> review W4 Nov.</p></div></div></div></div>
+ </section>
+</main>
+<footer><div class="footer-in"><div><b>PERTAMINA HULU ENERGI · SUBHOLDING UPSTREAM</b> | Draft dashboard analitik internal berbasis data pengguna</div><div>CONFIDENTIAL & PROPRIETARY — Tidak untuk publikasi tanpa persetujuan berwenang · <a href="https://phe.pertamina.com" target="_blank" rel="noopener noreferrer">phe.pertamina.com</a></div></div></footer>
+<dialog id="updateDialog" aria-labelledby="updateDialogTitle"><div class="dialog-top"><div><h3 id="updateDialogTitle" style="font-size:16px">Validasi Status Keamanan Wilayah</h3><p class="micro">Input manual; disimpan hanya di browser/perangkat ini. Data TRIS dasar tidak berubah.</p></div><button class="btn small" id="closeDialog" aria-label="Tutup">✕</button></div><form id="statusForm"><div class="dialog-body"><div class="form-grid"><label>Nama petugas/PIC<input class="form-input" id="operatorName" required placeholder="Nama penanggung jawab validasi"></label><label>Referensi laporan validasi<input class="form-input" id="operatorSource" required placeholder="No. LHI / Sitrep / Rapat Verifikasi"></label></div><p class="micro" style="margin:16px 0 5px">Pilih status yang telah diverifikasi. <strong>Belum dinilai</strong> adalah pilihan aman jika data lapangan tidak cukup. Status awal otomatis hanya menunjukkan ada/tidaknya insiden dalam TRIS.</p><div id="statusEditors"></div><div class="validation" id="formError"></div><p class="micro" style="margin-top:13px">Catatan validasi disimpan di <em>localStorage</em> browser. Tanpa API, kontrol akses terpusat, atau sinkronisasi server, ini bukan aplikasi pemantauan real-time atau sistem rekam resmi.</p></div><div class="dialog-bottom"><button type="button" id="clearOverrides" class="btn danger" style="margin-right:auto">Hapus Input Lokal</button><button type="button" id="cancelDialog" class="btn">Batal</button><button type="submit" class="btn primary">Simpan Validasi</button></div></form></dialog>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+'use strict';
+const REPORT = Object.freeze({period:'12–18 November 2026',cutoff:'2026-11-18',week:'W3 November 2026',incidents:5,vulnerabilities:138,previousIncidents:8,previousVulnerabilities:132,ytdIncidents:324,ytdVulnerabilities:5126,source:'TRIS W3 NOV 26.pptx (slide 2–4)'});
+const ZONES = [
+ {id:'zona-1',name:'Zona 1',regional:'Regional 1',area:'Aceh · Rantau · Pangkalan Susu · Jambi',lat:3.85,lng:97.65,entities:'PEP Rantau/Pangkalan Susu/Jambi, PHE NSO, PHE Jambi Merang'},
+ {id:'wk-rokan',name:'WK Rokan',regional:'Regional 1',area:'Duri · Dumai · Minas · Bangko',lat:1.14,lng:101.25,entities:'PHR; Elnusa Duri ditampilkan secara geografis, bukan afiliasi WK'},
+ {id:'zona-4',name:'Zona 4',regional:'Regional 1',area:'Prabumulih · Limau · Ramba · Pendopo',lat:-3.12,lng:104.15,entities:'PEP Prabumulih/Limau/Ramba; PDSI secara lokasi'},
+ {id:'wk-reg-2',name:'Kelompok Regional 2',regional:'Regional 2',area:'Jawa Barat · ONWJ · OSES · Jakarta',lat:-6.42,lng:107.78,entities:'PHE ONWJ, PHE OSES dan fasilitas Jawa Barat'},
+ {id:'zona-11-12',name:'Zona 11 & 12',regional:'Regional 4',area:'Surabaya · Cepu · Bojonegoro · WMO',lat:-7.12,lng:112.45,entities:'PHE WMO, PEPC, lapangan terkait'},
+ {id:'wk-reg-3',name:'Kelompok Regional 3',regional:'Regional 3',area:'Mahakam · PHSS · Bontang · Badak LNG',lat:-0.45,lng:117.15,entities:'PHM, PHKT, PHSS, PEP Kalimantan, Badak NGL'},
+ {id:'zona-13',name:'Zona 13',regional:'Regional 4',area:'Donggi Matindok · Senoro · Luwuk Banggai',lat:-1.35,lng:122.35,entities:'PEP Donggi Matindok dan entitas terkait'},
+ {id:'zona-14',name:'Zona 14',regional:'Regional 4',area:'Sorong · Salawati · Klamono · Babo · Seram',lat:-1.15,lng:131.65,entities:'PEP Papua Field dan entitas terkait'}
+];
+const INCIDENTS = [
+ {id:'INC-01',date:'13 Nov 2026',unit:'ELNUSA',description:'Pencurian barang eks Project EPC-KBJ di area Warehouse Elnusa Duri.',risk:'Insignificant',zoneId:'wk-rokan',place:'Duri, Riau',lat:1.27,lng:101.19},
+ {id:'INC-02',date:'15 Nov 2026',unit:'PDSI',description:'Pencurian alat kabel power charging mud hopper Rig PDSI #01.2, KRG-PK3, Field Limau, Desa Karangan.',risk:'Insignificant',zoneId:'zona-4',place:'Area Limau, Sumatera Selatan',lat:-3.32,lng:104.22},
+ {id:'INC-03',date:'15 Nov 2026',unit:'PHSS',description:'Pencurian blind flange sebanyak 3 unit pada sumur M.322.',risk:'Insignificant',zoneId:'wk-reg-3',place:'Area PHSS, Kalimantan Timur',lat:-0.44,lng:117.30},
+ {id:'INC-04',date:'16 Nov 2026',unit:'PHSS',description:'Pencurian blind flange sebanyak 1 unit di Mutiara #335 dan 2 unit di Mutiara #336, WK Southern Area.',risk:'Insignificant',zoneId:'wk-reg-3',place:'Area PHSS, Kalimantan Timur',lat:-0.50,lng:117.42},
+ {id:'INC-05',date:'14 Nov 2026',unit:'Ramba',description:'Pencurian minyak pada jalur line lokasi sumur BN-26, Desa Karang Agung, Kecamatan Lalan, Musi Banyuasin.',risk:'Insignificant',zoneId:'zona-4',place:'Kecamatan Lalan, Sumatera Selatan',lat:-2.30,lng:104.43}
+];
+const VULNERABILITY = [
+ ['Regional 1',2322,30],['Regional 2',150,8],['Regional 3',953,71],['Regional 4',1581,29],['Regional 5',17,0],['PDSI',70,0],['ELNUSA',28,0],['Badak NGL',5,0]
+];
+const WEEKLY = [['W4 Sep',9],['W1 Okt',8],['W2 Okt',11],['W3 Okt',14],['W4 Okt',8],['W1 Nov',7],['W2 Nov',8],['W3 Nov',5]];
+const ALLOWED_STATUS = {unassessed:{label:'BELUM DINILAI',color:'#869bb7',cls:'review'},safe:{label:'AMAN · VALIDASI',color:'#72d28c',cls:'safe'},alert:{label:'WASPADA · VALIDASI',color:'#ffc16a',cls:'alert'},critical:{label:'KRITIS · VALIDASI',color:'#ff7181',cls:'critical'}};
+const LS_KEY='shu_security_w3_nov_2026_status_v1';
+let currentFilter='all',selectedZone='wk-reg-3',overrides={},audit=[],map=null,tiles=null,zoneLayer=null,eventLayer=null;
+const $=(id)=>document.getElementById(id);
+const escapeHtml=(s)=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const fmt=(n)=>new Intl.NumberFormat('id-ID').format(n);
+const countByZone=id=>INCIDENTS.filter(e=>e.zoneId===id).length;
+function loadLocal(){try{let obj=JSON.parse(localStorage.getItem(LS_KEY)||'{}');if(obj&&typeof obj==='object'){overrides=obj.overrides||{};audit=Array.isArray(obj.audit)?obj.audit:[];}}catch(e){overrides={};audit=[];}}
+function actualStatus(z){const valid=overrides[z.id];if(valid&&Object.hasOwn(ALLOWED_STATUS,valid.status))return valid.status;return countByZone(z.id)?'alert':'unassessed';}
+function isValidated(z){return Boolean(overrides[z.id]&&Object.hasOwn(ALLOWED_STATUS,overrides[z.id].status));}
+function statusHtml(z){const s=actualStatus(z),cfg=ALLOWED_STATUS[s];const label=isValidated(z)?cfg.label:countByZone(z.id)?'ADA INSIDEN W3':'BELUM DINILAI';return `<span class="status ${cfg.cls}">${escapeHtml(label)}</span>`;}
+function renderDetails(){const z=ZONES.find(x=>x.id===selectedZone)||ZONES[0];const events=INCIDENTS.filter(e=>e.zoneId===z.id);const ov=overrides[z.id];$('zoneCode').textContent=z.id.toUpperCase();$('zoneDetail').innerHTML=`<div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:start"><div><div class="zone-name">${escapeHtml(z.name)}</div><div class="micro">${escapeHtml(z.regional)}</div></div>${statusHtml(z)}</div><div class="field"><label>Cakupan wilayah (indikatif)</label><p>${escapeHtml(z.area)}</p></div><div class="field"><label>Entitas terkait / cakupan dari HTML awal</label><p>${escapeHtml(z.entities)}</p></div><div class="field"><label>Insiden TRIS W3 di kelompok geografis</label><p><strong style="font-size:19px;color:${events.length?'#ffc16a':'#c7d6e7'}">${events.length}</strong> kejadian tercatat${events.length?` · ${events.map(e=>escapeHtml(e.unit)).join(', ')}`:''}</p></div><div class="field"><label>Status penilaian operasional</label><p>${ov?`${escapeHtml(ALLOWED_STATUS[ov.status]?.label||'BELUM DINILAI')} · oleh ${escapeHtml(ov.operator)} · ${escapeHtml(ov.updatedAt)}<br><span class="micro">Rujukan: ${escapeHtml(ov.source)}</span>`:'Belum ada validasi status dari petugas dalam dashboard ini.'}</p></div><div style="margin-top:13px;display:flex;gap:8px"><button class="btn small no-print" onclick="focusZone('${z.id}')">⌖ Fokus Peta</button><button class="btn small no-print" onclick="openUpdate()">✎ Validasi</button></div>`;}
+function filteredZones(){const q=$('zoneSearch').value.trim().toLowerCase();return ZONES.filter(z=>{const inc=countByZone(z.id);const s=actualStatus(z);const matches=!q||`${z.name} ${z.regional} ${z.area} ${z.entities}`.toLowerCase().includes(q);const f=currentFilter==='all'||(currentFilter==='incident'&&inc>0)||(currentFilter==='unassessed'&&s==='unassessed')||(currentFilter==='critical'&&s==='critical');return matches&&f;});}
+function renderList(){let items=filteredZones();$('zoneListCaption').textContent=`${items.length} dari 8 kelompok`;$('zoneList').innerHTML=items.length?items.map(z=>`<button class="item ${z.id===selectedZone?'selected':''}" onclick="selectZone('${z.id}')"><span><span class="item-name">${escapeHtml(z.name)}</span><span class="item-sub" style="display:block">${escapeHtml(z.area)}</span><span class="item-sub" style="display:block;margin-top:6px">${statusHtml(z)}</span></span>${countByZone(z.id)?`<span class="item-count" title="Jumlah insiden W3">${countByZone(z.id)}</span>`:''}</button>`).join(''):'<p class="micro">Tidak ada kelompok wilayah sesuai filter/pencarian.</p>';}
+function selectZone(id,fly=true){if(!ZONES.some(z=>z.id===id))return;selectedZone=id;renderDetails();renderList();if(fly)focusZone(id);}
+function focusZone(id){const z=ZONES.find(x=>x.id===id);if(map&&z)map.flyTo([z.lat,z.lng],7,{duration:.6});}
+function setupMap(){if(typeof window.L==='undefined'){$('mapFallback').style.display='grid';return;}map=L.map('map',{center:[-2.1,116.5],zoom:5,minZoom:4,maxZoom:12,zoomControl:false});L.control.zoom({position:'topright'}).addTo(map);zoneLayer=L.layerGroup().addTo(map);eventLayer=L.layerGroup().addTo(map);changeBasemap('dark');renderMap();setTimeout(()=>map.invalidateSize(),100);}
+const tilesets={dark:['https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png','© OpenStreetMap, © CARTO'],light:['https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png','© OpenStreetMap, © CARTO'],satellite:['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}','Tiles © Esri']};
+function changeBasemap(kind){if(!map)return;if(tiles)map.removeLayer(tiles);let c=tilesets[kind]||tilesets.dark;tiles=L.tileLayer(c[0],{attribution:c[1],maxZoom:18,subdomains:'abcd'}).addTo(map);tiles.bringToBack();}
+function createDot(color,count){let cls=color==='#ffc16a'?'orange':color==='#72d28c'?'green':color==='#ff7181'?'red':'grey';return L.divIcon({className:'',html:`<div class="map-pin ${cls}" style="width:30px;height:30px">${count||'●'}</div>`,iconSize:[30,30],iconAnchor:[15,15]});}
+function renderMap(){if(!map)return;zoneLayer.clearLayers();eventLayer.clearLayers();const zones=filteredZones();for(const z of zones){const count=countByZone(z.id),s=actualStatus(z),color=ALLOWED_STATUS[s].color;const circle=L.circle([z.lat,z.lng],{radius:125000,color,weight:1,opacity:.75,fillColor:color,fillOpacity:.13});const marker=L.marker([z.lat,z.lng],{icon:createDot(color,count)});const html=`<b>${escapeHtml(z.name)}</b><div style="font-size:11px;margin:6px 0">${escapeHtml(z.area)}</div><b style="color:${color}">${count} insiden W3</b><div style="margin:6px 0;font-size:11px">${isValidated(z)?escapeHtml(ALLOWED_STATUS[s].label):count?'Ada insiden; status siaga belum dinilai':'Status siaga belum dinilai'}</div><div style="font-size:10px;color:#a7c1dc">Klik penanda untuk detail pada panel.</div>`;circle.bindPopup(html);marker.bindPopup(html);marker.bindTooltip(z.name,{direction:'top',offset:[0,-12]});circle.on('click',()=>selectZone(z.id,false));marker.on('click',()=>selectZone(z.id,false));zoneLayer.addLayer(circle);zoneLayer.addLayer(marker);}
+ for(const ev of INCIDENTS.filter(ev=>zones.some(z=>z.id===ev.zoneId))){const icon=L.divIcon({className:'',html:'<div class="event-pin"></div>',iconSize:[13,13],iconAnchor:[6,6]});let m=L.marker([ev.lat,ev.lng],{icon}).bindPopup(`<b>${escapeHtml(ev.id)} · ${escapeHtml(ev.unit)}</b><div style="font-size:11px;color:#abc4df">${escapeHtml(ev.date)}</div><div style="margin:8px 0;font-size:12px">${escapeHtml(ev.description)}</div><div style="font-size:10px;color:#ffc16a">Lokasi peta hanya perkiraan geografis.</div>`);m.on('click',()=>selectZone(ev.zoneId,false));eventLayer.addLayer(m);}}
+function setFilter(name){currentFilter=name;document.querySelectorAll('.tab').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.filter===name)));renderList();renderMap();}
+function renderTrend(){let max=14;$('trendChart').innerHTML=WEEKLY.map(([label,val],i)=>`<div class="bar-col"><div class="val">${val}</div><div class="bar ${i===7?'current':''}" style="--bar-height:${Math.round(val/max*113)}px" title="${label}: ${val} insiden"></div></div>`).join('');$('trendLabels').innerHTML=WEEKLY.map(([label])=>`<span>${label.replace(' ','<br>')}</span>`).join('');}
+function renderVulnerability(){$('vulnerabilityTable').innerHTML=VULNERABILITY.map(([name,ytd,delta])=>`<tr><td>${escapeHtml(name)}</td><td><strong>${fmt(ytd)}</strong></td><td>${delta?`<span class="amber">+${fmt(delta)}</span>`:'—'}</td></tr>`).join('');}
+function renderIncidents(){$('incidentsTable').innerHTML=INCIDENTS.map(e=>`<tr tabindex="0" data-zone="${e.zoneId}" title="Fokus wilayah di peta"><td>${escapeHtml(e.date)}</td><td><b>${escapeHtml(e.unit)}</b></td><td>${escapeHtml(e.description)}</td><td class="hide-mobile">${escapeHtml(ZONES.find(z=>z.id===e.zoneId)?.name||'')}</td><td><span class="tag">${escapeHtml(e.risk)}</span></td></tr>`).join('');document.querySelectorAll('#incidentsTable tr[data-zone]').forEach(r=>{let select=()=>{selectZone(r.dataset.zone);document.querySelector('.workspace').scrollIntoView({behavior:'smooth'});};r.addEventListener('click',select);r.addEventListener('keydown',e=>{if(e.key==='Enter')select();});});}
+function openUpdate(){let html=ZONES.map(z=>{let current=overrides[z.id]?.status||'unassessed';return `<div class="update-row"><div><strong style="font-size:12px">${escapeHtml(z.name)}</strong><div class="micro">${countByZone(z.id)} insiden W3 · ${escapeHtml(z.regional)}</div></div><label>Hasil validasi<select class="form-input status-editor" data-zone="${z.id}">${Object.entries(ALLOWED_STATUS).map(([key,obj])=>`<option value="${key}" ${current===key?'selected':''}>${escapeHtml(obj.label)}</option>`).join('')}</select></label></div>`;}).join('');$('statusEditors').innerHTML=html;$('formError').style.display='none';$('updateDialog').showModal();}
+function closeUpdate(){$('updateDialog').close();}
+function updateFromForm(e){e.preventDefault();const operator=$('operatorName').value.trim(),source=$('operatorSource').value.trim();if(!operator||!source){$('formError').textContent='Nama petugas dan referensi validasi wajib diisi.';$('formError').style.display='block';return;}
+const updated=new Date().toLocaleString('id-ID',{timeZone:'Asia/Jakarta',dateStyle:'medium',timeStyle:'short'})+' WIB';let next={};document.querySelectorAll('.status-editor').forEach(el=>{const st=el.value;if(!Object.hasOwn(ALLOWED_STATUS,st))return;if(st!=='unassessed')next[el.dataset.zone]={status:st,operator,source,updatedAt:updated};});overrides=next;audit.push({operator,source,updatedAt:updated,statuses:Object.fromEntries(ZONES.map(z=>[z.id,actualStatus(z)]))});audit=audit.slice(-20);try{localStorage.setItem(LS_KEY,JSON.stringify({overrides,audit}));}catch(err){console.warn('Penyimpanan lokal tidak tersedia',err);}renderList();renderDetails();renderMap();closeUpdate();}
+function clearLocal(){if(!confirm('Hapus seluruh status validasi lokal pada browser ini? Data dasar TRIS akan tetap ada.'))return;overrides={};audit=[];try{localStorage.removeItem(LS_KEY)}catch(err){}renderList();renderDetails();renderMap();closeUpdate();}
+function exportJSON(){const payload={metadata:REPORT,notes:['Data insiden berasal dari TRIS W3; lokasi peta bersifat indikatif','Kelompok geografis peta bukan unit pelaporan resmi TRIS','Status validasi ditambahkan secara manual dalam browser lokal'],weeklyTrend:WEEKLY,vulnerabilitiesYTD:VULNERABILITY,zones:ZONES.map(z=>({...z,incidentCount:countByZone(z.id),computedStatus:actualStatus(z)})),incidents:INCIDENTS,localValidation:overrides,localAudit:audit};const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json;charset=utf-8'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='SHU_Security_Risk_Map_TRIS_W3_Nov_2026.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),500);}
+function bootstrap(){loadLocal();renderDetails();renderList();renderTrend();renderVulnerability();renderIncidents();setupMap();$('zoneSearch').addEventListener('input',()=>{renderList();renderMap()});document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>setFilter(b.dataset.filter)));$('basemap').addEventListener('change',e=>changeBasemap(e.target.value));$('resetMap').addEventListener('click',()=>map&&map.flyTo([-2.1,116.5],5,{duration:.7}));$('updateBtn').addEventListener('click',openUpdate);$('exportBtn').addEventListener('click',exportJSON);$('printBtn').addEventListener('click',()=>window.print());$('closeDialog').addEventListener('click',closeUpdate);$('cancelDialog').addEventListener('click',closeUpdate);$('clearOverrides').addEventListener('click',clearLocal);$('statusForm').addEventListener('submit',updateFromForm);}
+document.addEventListener('DOMContentLoaded',bootstrap);
+</script>
 </body>
 </html>
